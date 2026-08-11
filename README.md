@@ -13,6 +13,7 @@ A practical collection of WP-CLI commands for WordPress administration, troubles
 - [Cache Management](#cache-management)
 - [Cron](#cron)
 - [Troubleshooting](#troubleshooting)
+
 This cheat sheet documents commonly used WP-CLI commands for managing and troubleshooting WordPress installations from the command line.
 
 The focus is on practical commands used for day-to-day WordPress administration, production troubleshooting, database management, plugin and theme management, and user administration.
