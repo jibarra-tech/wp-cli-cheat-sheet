@@ -235,3 +235,55 @@ For example:
     wp db search "example.com"
 
 > **Production note:** Always verify the environment before running database commands. When troubleshooting production issues, start with read-only operations whenever possible and create or verify a backup before making changes.
+
+---
+
+## Search & Replace
+
+### Basic Search & Replace
+
+    wp search-replace 'old-domain.com' 'new-domain.com'
+
+Searches the WordPress database for a specific value and replaces it with a new value.
+
+This is commonly used when changing domains, migrating WordPress sites, or updating URLs within a database.
+
+### Preview Changes Without Making Them
+
+    wp search-replace 'old-domain.com' 'new-domain.com' --dry-run
+
+Performs a search and reports the changes that would be made without modifying the database.
+
+> **Best practice:** Use `--dry-run` first when performing a search-and-replace operation, especially on production environments.
+
+### Search and Replace Specific Tables
+
+    wp search-replace 'old-domain.com' 'new-domain.com' wp_posts wp_postmeta
+
+Limits the search-and-replace operation to the specified database tables.
+
+### Search Without Replacing
+
+    wp search-replace 'old-domain.com' 'new-domain.com' --dry-run --verbose
+
+Performs a dry run and provides additional information about the changes that would be made.
+
+### Export the Database Before a Search & Replace
+
+    wp db export pre-search-replace.sql
+
+Creates a database backup before performing a search-and-replace operation.
+
+### Skip Specific Columns
+
+    wp search-replace 'old-domain.com' 'new-domain.com' --skip-columns=guid
+
+Allows specific database columns to be excluded from the search-and-replace operation.
+
+> **Production note:** Always create or verify a recent database backup before performing a search-and-replace operation. Use `--dry-run` to review the expected changes before modifying production data.
+
+### Serialized Data
+
+WP-CLI's `search-replace` command is designed to handle serialized PHP data correctly. This is important because WordPress stores serialized data in many plugins and themes.
+
+Using a database tool that performs a simple text replacement can corrupt serialized data. WP-CLI's search-and-replace functionality accounts for serialized data when performing replacements.
