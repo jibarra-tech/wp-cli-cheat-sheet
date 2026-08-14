@@ -287,3 +287,111 @@ Allows specific database columns to be excluded from the search-and-replace oper
 WP-CLI's `search-replace` command is designed to handle serialized PHP data correctly. This is important because WordPress stores serialized data in many plugins and themes.
 
 Using a database tool that performs a simple text replacement can corrupt serialized data. WP-CLI's search-and-replace functionality accounts for serialized data when performing replacements.
+
+---
+
+## User Management
+
+### List WordPress Users
+
+    wp user list
+
+Lists all users on the current WordPress installation.
+
+### List Only Administrator Accounts
+
+    wp user list --role=administrator
+
+Displays users assigned the Administrator role.
+
+This can be useful when auditing administrative access or investigating unexpected accounts.
+
+### List User IDs
+
+    wp user list --field=ID
+
+Returns only the user IDs.
+
+This is useful when passing user IDs into other WP-CLI commands or scripting administrative tasks.
+
+### Get Specific User Information
+
+    wp user get 123
+
+Displays information about the specified user.
+
+A user can be identified by their ID, login, or email address.
+
+### Check Whether a User Exists
+
+    wp user exists 123
+
+Checks whether a specified user exists.
+
+### Create a User
+
+    wp user create username user@example.com --role=author
+
+Creates a new WordPress user and assigns the specified role.
+
+### Update a User
+
+    wp user update 123 --display_name="Jane Smith"
+
+Updates information associated with an existing user.
+
+### Change a User's Role
+
+    wp user set-role 123 editor
+
+Changes the specified user's WordPress role.
+
+### Reset a User Password
+
+    wp user reset-password 123
+
+Resets the password for the specified user.
+
+The command can also be used with a username, email address, or multiple users.
+
+### List User Capabilities
+
+    wp user list-caps 123
+
+Displays the capabilities associated with a specific user.
+
+This can be useful when investigating unexpected permissions or access issues.
+
+### List User Metadata
+
+    wp user meta list 123
+
+Displays metadata associated with a specific user.
+
+Specific metadata keys can be requested:
+
+    wp user meta list 123 --keys=nickname,description
+
+### Delete a User
+
+    wp user delete 123
+
+Deletes the specified user.
+
+When deleting a user who owns content, posts can be reassigned to another user:
+
+    wp user delete 123 --reassign=456
+
+> **Production note:** Always verify the user and target environment before deleting accounts or changing roles. When deleting a user, consider whether their posts, pages, or other content need to be reassigned first.
+
+### Security Considerations
+
+User management commands can make significant changes to site access and permissions.
+
+When troubleshooting or auditing users:
+
+- Verify the target user before making changes.
+- Review administrator accounts carefully.
+- Avoid exposing passwords or sensitive user information in command history or documentation.
+- Prefer read-only commands such as `wp user list`, `wp user get`, and `wp user list-caps` when investigating an issue.
+- Use additional caution when working with production environments.
