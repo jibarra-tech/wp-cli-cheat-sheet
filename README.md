@@ -10,9 +10,9 @@ A practical collection of WP-CLI commands for WordPress administration, troubles
 - [Database Operations](#database-operations)
 - [Search & Replace](#search--replace)
 - [User Management](#user-management)
-- [Cache Management](#cache-management)
+- [Cache & Transients](#cache--transients)
 - [Cron](#cron)
-- [Troubleshooting](#troubleshooting)
+- [Production Troubleshooting](#production-troubleshooting)
 
 This cheat sheet documents commonly used WP-CLI commands for managing and troubleshooting WordPress installations from the command line.
 
