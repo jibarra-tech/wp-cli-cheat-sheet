@@ -395,3 +395,122 @@ When troubleshooting or auditing users:
 - Avoid exposing passwords or sensitive user information in command history or documentation.
 - Prefer read-only commands such as `wp user list`, `wp user get`, and `wp user list-caps` when investigating an issue.
 - Use additional caution when working with production environments.
+
+---
+
+## Cache & Transients
+
+### Flush the WordPress Object Cache
+
+    wp cache flush
+
+Flushes the WordPress Object Cache.
+
+This can be useful when troubleshooting stale or inconsistent cached data.
+
+> **Production note:** Flushing an object cache can have a performance impact, particularly on multisite installations using a persistent object cache. Use caution when performing this operation on production sites.
+
+### Check the Object Cache Type
+
+    wp cache type
+
+Attempts to determine which object cache implementation is being used.
+
+This can help identify whether a site is using the default WordPress object cache or a persistent object cache implementation.
+
+### Check Object Cache Feature Support
+
+    wp cache supports <feature>
+
+Determines whether the current object cache implementation supports a particular feature.
+
+### Get a Cached Value
+
+    wp cache get my_key my_group
+
+Retrieves a value from the WordPress Object Cache.
+
+### Set a Cached Value
+
+    wp cache set my_key my_value my_group 300
+
+Stores a value in the WordPress Object Cache with an expiration time in seconds.
+
+### Delete a Cached Value
+
+    wp cache delete my_key my_group
+
+Removes a specific value from the WordPress Object Cache.
+
+---
+
+## Transients
+
+### List Transients
+
+    wp transient list
+
+Lists transients and their values, including their expiration information.
+
+This can be useful when investigating plugins or themes that are storing large numbers of transient values.
+
+### Get a Transient
+
+    wp transient get transient_name
+
+Retrieves the value of a specific transient.
+
+### Set a Transient
+
+    wp transient set transient_name "example value" 3600
+
+Creates or updates a transient with an expiration time specified in seconds.
+
+### Delete a Transient
+
+    wp transient delete transient_name
+
+Deletes a specific transient.
+
+### Delete Expired Transients
+
+    wp transient delete --expired
+
+Deletes expired transients.
+
+This can be useful when cleaning up expired transient data during troubleshooting or maintenance.
+
+### Delete All Transients
+
+    wp transient delete --all
+
+Deletes all transients.
+
+> **Warning:** Deleting all transients can cause plugins and themes to regenerate cached data. Use caution when performing this operation on production sites.
+
+### Delete Network Transients
+
+    wp transient delete --all --network
+
+Deletes all network/site transients.
+
+This option is particularly relevant when working with WordPress multisite installations.
+
+---
+
+## Cache Troubleshooting
+
+When investigating a caching-related issue, consider the different layers that may be involved:
+
+1. WordPress Object Cache
+2. Transients
+3. Plugin-level caching
+4. Page caching
+5. CDN caching
+6. Browser caching
+
+Clearing one cache layer does not necessarily clear the others.
+
+A useful troubleshooting approach is to first identify which layer is actually responsible for the stale or unexpected content before clearing caches unnecessarily.
+
+> **Best practice:** Avoid using cache flushes as the first troubleshooting step. When possible, identify the specific cache layer and determine whether the cached data is actually contributing to the issue.
