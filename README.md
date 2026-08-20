@@ -596,3 +596,369 @@ Useful commands for investigating cron activity include:
     wp cron event run --due-now
 
 > **Best practice:** Avoid deleting or repeatedly running scheduled events simply to clear a backlog. First determine why the event is not executing as expected.
+
+---
+
+## Production Troubleshooting
+
+Production troubleshooting requires a methodical approach. Rather than immediately changing configuration or clearing caches, begin by identifying the symptoms, gathering evidence, and narrowing the issue down to its root cause.
+
+A useful troubleshooting workflow is:
+
+**Symptom → Investigation → Evidence → Root Cause → Resolution → Verification**
+
+> **Production principle:** Avoid making changes before understanding the problem. Whenever possible, gather logs, metrics, and other evidence first.
+
+---
+
+### 1. Identify the Symptoms
+
+Start by clearly defining what is actually failing.
+
+Common symptoms include:
+
+- Site completely unavailable
+- HTTP 502, 503, or 504 responses
+- Slow page loads
+- WordPress admin issues
+- PHP errors
+- Database errors
+- High server resource usage
+- Unexpected redirects
+- Intermittent connectivity
+- Large increases in traffic
+- Scheduled tasks not executing
+- Specific requests consuming excessive resources
+
+Determine whether the problem affects:
+
+- The entire site
+- Only the WordPress admin
+- A specific URL
+- A specific user
+- A specific geographic location
+- A specific time period
+- A specific type of request
+
+Defining the scope of the problem can significantly reduce the number of possible causes.
+
+---
+
+### 2. Check Monitoring and Server Health
+
+Monitoring can provide an important overview of what is happening at the server level.
+
+When investigating an incident, review available metrics for:
+
+- CPU utilization
+- Memory utilization
+- Disk usage
+- Apache activity
+- Nginx activity
+- PHP processes
+- Database activity
+- Request volume
+- Response times
+
+A sudden increase in resource usage can help establish when an incident began and whether it correlates with increased traffic or a specific type of request.
+
+---
+
+### 3. Review Web Server Logs
+
+Logs are one of the most valuable sources of information during production troubleshooting.
+
+Common commands for reviewing logs include:
+
+    tail -f access.log
+
+    tail -f error.log
+
+    grep "500" access.log
+
+    grep "POST" access.log
+
+    grep "wp-cron" access.log
+
+    grep "admin-ajax.php" access.log
+
+For larger logs, tools such as `grep`, `awk`, `sed`, `sort`, and `uniq` can be combined to identify patterns and high-volume requests.
+
+Example:
+
+    grep "admin-ajax.php" access.log | sort | uniq -c | sort -nr
+
+This can help identify repeated requests to `admin-ajax.php` and determine whether a particular request pattern is contributing to increased server activity.
+
+---
+
+### 4. Investigate HTTP Errors
+
+#### 502 Bad Gateway
+
+A 502 response can indicate that an upstream service did not provide a valid response.
+
+Potential areas to investigate include:
+
+- PHP processes
+- PHP-FPM
+- Upstream connectivity
+- Resource exhaustion
+- Application errors
+- Web server configuration
+
+The HTTP status code alone does not identify the root cause, so logs and server metrics should be reviewed.
+
+#### 503 Service Unavailable
+
+A 503 response generally indicates that the service is temporarily unable to handle the request.
+
+Possible areas of investigation include:
+
+- Resource exhaustion
+- Application-level failures
+- Maintenance states
+- Upstream service availability
+- Excessive request volume
+
+#### 504 Gateway Timeout
+
+A 504 response indicates that a gateway or proxy did not receive a timely response from an upstream service.
+
+Investigate:
+
+- Slow PHP requests
+- Slow database queries
+- External API calls
+- Long-running WordPress operations
+- Resource constraints
+- Application behavior
+
+> **Troubleshooting principle:** Treat the HTTP status code as a symptom rather than a diagnosis.
+
+---
+
+### 5. Investigate High Traffic and Suspicious Requests
+
+A sudden increase in traffic can significantly affect server resources.
+
+When traffic appears abnormal, investigate:
+
+- Source IP addresses
+- User agents
+- Requested URLs
+- Request methods
+- Request frequency
+- Geographic patterns
+- Response status codes
+
+Useful log-analysis commands include:
+
+    grep "pattern" access.log
+
+    awk '{print $1}' access.log | sort | uniq -c | sort -nr
+
+The second command can be used to identify IP addresses generating large numbers of requests.
+
+When investigating suspicious traffic, correlate request volume with server metrics to determine whether the traffic is contributing to the reported symptoms.
+
+---
+
+### 6. Investigate DDoS or Automated Traffic
+
+Large volumes of automated requests can cause increased server utilization even when individual requests appear relatively normal.
+
+Indicators may include:
+
+- Sudden increases in request volume
+- Large numbers of requests from a small number of IP addresses
+- Repeated requests to the same endpoint
+- Unusual or outdated user agents
+- High Apache or PHP utilization
+- Requests bypassing expected caching behavior
+
+When investigating suspected abusive traffic:
+
+1. Identify the request pattern.
+2. Determine which IPs or user agents are generating the traffic.
+3. Determine which URLs are being requested.
+4. Compare request volume with server resource utilization.
+5. Determine whether the traffic is cached or reaching the application.
+6. Apply appropriate mitigation.
+7. Monitor the system after mitigation.
+
+> **Production principle:** Blocking traffic should be based on evidence whenever possible. Avoid blocking legitimate crawlers, monitoring services, or customers without first validating the traffic pattern.
+
+---
+
+### 7. Investigate WordPress Admin Performance
+
+When the front end of a site is functioning but `/wp-admin/` is slow or unavailable, investigate the administrative requests separately.
+
+Areas to examine include:
+
+- Plugin behavior
+- Database queries
+- `admin-ajax.php`
+- WordPress cron activity
+- PHP resource usage
+- Large or expensive administrative operations
+
+Example:
+
+    grep "admin-ajax.php" access.log | sort | uniq -c | sort -nr
+
+High request volume to `admin-ajax.php` may indicate that a plugin, theme, or external process is generating repeated asynchronous requests.
+
+---
+
+### 8. Investigate Database-Related Problems
+
+When a WordPress site is experiencing database-related errors or performance issues, investigate:
+
+- Database connectivity
+- Slow queries
+- Database size
+- Large tables
+- Plugin-generated queries
+- Locking or contention
+- Recent database changes
+
+Useful WP-CLI commands include:
+
+    wp db size
+
+    wp db tables
+
+    wp db query "SELECT ..."
+
+For database imports or migrations, verify:
+
+- The correct database is being targeted.
+- A valid backup exists.
+- The import completed successfully.
+- Database tables are present.
+- WordPress configuration references the expected database.
+
+---
+
+### 9. Investigate Cache Behavior
+
+Caching problems can sometimes appear as application problems.
+
+When content appears stale or inconsistent, identify the cache layer involved:
+
+1. Browser cache
+2. CDN cache
+3. Page cache
+4. Plugin cache
+5. WordPress object cache
+6. Transients
+
+Useful WP-CLI commands include:
+
+    wp cache flush
+
+    wp transient list
+
+    wp transient delete --expired
+
+Avoid clearing every cache layer immediately. First determine which layer is responsible for the behavior.
+
+---
+
+### 10. Correlate Multiple Sources of Evidence
+
+The most useful troubleshooting information often comes from combining multiple sources.
+
+For example:
+
+**Grafana**
+
+→ identifies when resource utilization increased
+
+**Access logs**
+
+→ identify which requests increased
+
+**Error logs**
+
+→ identify application or web-server errors
+
+**WP-CLI**
+
+→ provides application-level information
+
+**Database investigation**
+
+→ identifies expensive or problematic queries
+
+Combining these sources can help distinguish between a traffic problem, application problem, infrastructure problem, and database problem.
+
+---
+
+### 11. Verify the Resolution
+
+After making a change, verify that the original problem has actually been resolved.
+
+Check:
+
+- HTTP response codes
+- Page load behavior
+- Server resource utilization
+- Request volume
+- Error logs
+- Application functionality
+- Customer-reported symptoms
+
+Continue monitoring after the immediate symptoms disappear to ensure the issue does not return.
+
+---
+
+## Example Incident Investigation
+
+A useful incident investigation can follow this pattern:
+
+**Symptom**
+
+Website becomes slow or intermittently unavailable.
+
+**Investigation**
+
+Monitoring shows a significant increase in Apache activity.
+
+**Evidence**
+
+Access logs show a large number of repeated requests from a small number of IP addresses and unusual user agents.
+
+**Correlation**
+
+The increase in request volume occurs at the same time Apache utilization increases.
+
+**Root Cause**
+
+Automated traffic is generating enough uncached requests to place significant load on the application stack.
+
+**Resolution**
+
+Mitigate the abusive traffic and continue monitoring server metrics and request volume.
+
+**Verification**
+
+Apache utilization returns toward normal levels and the reported site performance improves.
+
+---
+
+## Troubleshooting Principles
+
+- Gather evidence before making changes.
+- Identify the scope of the problem.
+- Correlate logs with monitoring data.
+- Treat symptoms and root causes separately.
+- Change one variable at a time when practical.
+- Prefer reversible changes.
+- Verify the result after making a change.
+- Document the findings and resolution.
+- Consider whether the issue could recur and whether preventative measures are appropriate.
+
+> **Important:** Production environments can contain sensitive customer information. Never publish real customer domains, IP addresses, credentials, log entries containing personal information, or other confidential data in public documentation.
