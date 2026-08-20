@@ -514,3 +514,85 @@ Clearing one cache layer does not necessarily clear the others.
 A useful troubleshooting approach is to first identify which layer is actually responsible for the stale or unexpected content before clearing caches unnecessarily.
 
 > **Best practice:** Avoid using cache flushes as the first troubleshooting step. When possible, identify the specific cache layer and determine whether the cached data is actually contributing to the issue.
+
+---
+
+## Cron
+
+WP-Cron is WordPress's built-in system for scheduling tasks such as publishing scheduled posts, processing queued actions, sending notifications, and running scheduled plugin or theme tasks.
+
+### List Scheduled Cron Events
+
+    wp cron event list
+
+Lists scheduled WP-Cron events, including their scheduled time, recurrence, and hook name.
+
+### Run a Cron Event
+
+    wp cron event run hook_name
+
+Runs a specific scheduled cron event immediately.
+
+This can be useful when troubleshooting a task that appears to be scheduled but is not executing as expected.
+
+### Run All Due Cron Events
+
+    wp cron event run --due-now
+
+Runs all cron events that are currently due.
+
+### Schedule a Cron Event
+
+    wp cron event schedule <timestamp> <hook>
+
+Schedules a new cron event for a specific Unix timestamp.
+
+For example:
+
+    wp cron event schedule 1735689600 my_custom_hook
+
+### Delete a Cron Event
+
+    wp cron event delete hook_name
+
+Deletes a scheduled cron event.
+
+> **Production note:** Be careful when deleting cron events. Plugins and themes may depend on scheduled hooks to perform important background tasks.
+
+### Check Cron Status
+
+    wp cron test
+
+Tests whether WP-Cron is functioning correctly.
+
+This can be useful when investigating scheduled tasks that are not running.
+
+### Check the WordPress Cron System
+
+    wp cron event list --fields=hook,next_run,next_run_gmt,recurrence
+
+Displays selected information about scheduled events and can make it easier to identify events that are overdue or scheduled unusually frequently.
+
+---
+
+## Cron Troubleshooting
+
+When investigating a cron-related issue, consider:
+
+1. Is the expected cron event actually scheduled?
+2. Is the event overdue?
+3. Can the event be executed manually?
+4. Are there errors when the associated plugin or task runs?
+5. Is WordPress Cron disabled?
+6. Is the server configured to run an alternative system cron?
+7. Is the site experiencing high traffic or resource constraints that could affect scheduled tasks?
+
+Useful commands for investigating cron activity include:
+
+    wp cron event list
+
+    wp cron test
+
+    wp cron event run --due-now
+
+> **Best practice:** Avoid deleting or repeatedly running scheduled events simply to clear a backlog. First determine why the event is not executing as expected.
