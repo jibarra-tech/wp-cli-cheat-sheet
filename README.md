@@ -1,5 +1,15 @@
 # WP-CLI Cheat Sheet
+## Technologies Demonstrated
 
+- WordPress
+- WP-CLI
+- Linux
+- MySQL
+- Nginx
+- Apache
+- Bash
+- Git
+- Production Troubleshooting
 A practical collection of WP-CLI commands for WordPress administration, troubleshooting, and maintenance.
 
 ## About This Project
